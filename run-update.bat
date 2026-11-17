@@ -1,5 +1,4 @@
 @echo off
-set SOCRATA_APP_TOKEN=process.env.SOCRATA_APP_TOKEN || '';
-
-cd /d C:\Users\tcf06\OneDrive\Documents\congestion-cra
-node src\scripts\update-bus-speeds.js >> update.log 2>&1
+rem Refreshes the dashboard data files in public\data by hand.
+cd /d "%~dp0"
+node src\scripts\update-data.mjs >> update.log 2>&1

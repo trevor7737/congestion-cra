@@ -1,7 +1,0 @@
-﻿[
-  {"toll_date":"2025-12-20T00:00:00.000","hour_of_day":"23","crz_entries":"98","detection_group":"Manhattan Bridge"},
-  {"toll_date":"2025-12-20T00:00:00.000","hour_of_day":"23","crz_entries":"129","detection_group":"Williamsburg Bridge"},
-  {"toll_date":"2025-12-20T00:00:00.000","hour_of_day":"23","crz_entries":"93","detection_group":"Brooklyn Bridge"},
-  {"toll_date":"2025-12-20T00:00:00.000","hour_of_day":"23","crz_entries":"100","detection_group":"Hugh L. Carey Tunnel"},
-  {"toll_date":"2025-12-20T00:00:00.000","hour_of_day":"23","crz_entries":"161","detection_group":"East 60th St"}
-]

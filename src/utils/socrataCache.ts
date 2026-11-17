@@ -1,80 +1,43 @@
-// Shared utilities for caching, probing, and aggregating Socrata data
-// across the four dashboard components.
+// Shared helpers for aggregating and labelling the monthly series
+// used by the four dashboard components.
 
 export type MonthValue = {
   month: string;   // 'YYYY-MM'
   value: number;
 };
 
-export type CachedSeries = {
-  datasetLastUpdate: string;
-  monthly: MonthValue[];
-};
-
-// ============================================================
-// CACHE: read/write per-component using a unique prefix
-// ============================================================
-
-export function readCache(prefix: string, key: string): CachedSeries | null {
-  try {
-    const raw = localStorage.getItem(prefix + key);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function writeCache(prefix: string, key: string, value: CachedSeries) {
-  try {
-    localStorage.setItem(prefix + key, JSON.stringify(value));
-  } catch {
-    // localStorage full or disabled; ignore
-  }
-}
-
-// ============================================================
-// PROBE: ask the dataset for its latest update timestamp
-// ============================================================
-
-export async function getDatasetLastUpdate(base: string): Promise<string | null> {
-  try {
-    const res = await fetch(`${base}?$select=max(:updated_at) AS last_update&$limit=1`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data[0]?.last_update ?? null;
-  } catch {
-    return null;
-  }
-}
-
 // ============================================================
 // AGGREGATION HELPERS
 // ============================================================
 
 /**
- * Build cumulative series given monthly values.
+ * Build a year-to-date series from monthly values. The running figure
+ * restarts each January, so every bar covers only its own calendar year.
  * - 'sum': running total (for counts like entries/complaints)
- * - 'average': running average (for averages like speeds)
+ * - 'average': running average of the monthly values (for speeds)
+ * Expects `monthly` sorted by month.
  */
 export function buildCumulative(
   monthly: MonthValue[],
   rule: 'sum' | 'average'
 ): MonthValue[] {
-  if (rule === 'sum') {
-    let running = 0;
-    return monthly.map(m => {
-      running += m.value;
-      return { month: m.month, value: running };
-    });
-  } else {
-    let runningSum = 0;
-    let runningCount = 0;
-    return monthly.map(m => {
-      runningSum += m.value;
-      runningCount += 1;
-      return { month: m.month, value: runningSum / runningCount };
-    });
-  }
+  let year = '';
+  let runningSum = 0;
+  let runningCount = 0;
+  return monthly.map(m => {
+    const y = m.month.slice(0, 4);
+    if (y !== year) {
+      year = y;
+      runningSum = 0;
+      runningCount = 0;
+    }
+    runningSum += m.value;
+    runningCount += 1;
+    return {
+      month: m.month,
+      value: rule === 'sum' ? runningSum : runningSum / runningCount,
+    };
+  });
 }
 
 // ============================================================

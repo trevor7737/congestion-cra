@@ -5,9 +5,112 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #222;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* ---------- Page ---------- */
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.intro {
+  margin: 0 0 20px;
+  max-width: 720px;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* A single chart shown inside an iframe (?chart=...): no outer spacing. */
+.app.app-embed {
+  max-width: none;
+  padding: 0 4px;
+}
+
+.app-embed .chart-section {
+  padding: 4px 0;
+}
+
+/* ---------- Category tabs ---------- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tab {
+  padding: 8px 14px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  background: white;
+  color: #222;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: #f0f4fa;
+}
+
+.tab-active,
+.tab-active:hover {
+  background: #1f5fa8;
+  border-color: #1f5fa8;
+  color: white;
+  font-weight: 600;
+}
+
+/* ---------- Charts ---------- */
+
+.chart-section {
+  padding: 18px 0;
+}
+
+/* Two charts side by side on wide screens, stacked on narrow ones. */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: 16px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: #444;
+}
+
+.chart-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 12px;
+  }
+
+  .app h1 {
+    font-size: 22px;
+  }
 }

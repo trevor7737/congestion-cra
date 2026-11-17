@@ -1,0 +1,66 @@
+name: Update data and deploy
+
+# Publishes the dashboard to GitHub Pages.
+#  - On every push to main: build and deploy.
+#  - On the 1st and 15th of each month: refresh the JSON files in
+#    public/data/, commit them, then build and deploy. (GitHub's scheduler
+#    has no "every 14 days" option.)
+#  - By hand from the Actions tab ("Run workflow"): same as the schedule.
+#
+# One-time setup: repo Settings -> Pages -> Source: "GitHub Actions".
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 9 1,15 * *'   # 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write    # commit refreshed data
+  pages: write       # publish the site
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Fetch monthly data
+        if: github.event_name != 'push'
+        run: node src/scripts/update-data.mjs
+        env:
+          SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+
+      - name: Commit updated data
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data
+          git diff --cached --quiet || git commit -m "Update dashboard data"
+          git push
+
+      - name: Build site
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
